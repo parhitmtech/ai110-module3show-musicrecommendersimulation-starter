@@ -11,24 +11,59 @@ Your goal is to:
 - Evaluate what your system gets right and wrong
 - Reflect on how this mirrors real world AI recommenders
 
-Replace this paragraph with your own summary of what your version does.
+This project implements a content-based music recommender that suggests songs based on matching musical attributes. The system analyzes a user's listening history to build a taste profile, then scores each song in the catalog by comparing features like genre, mood, energy level, and tempo. Songs with the highest similarity scores are recommended to the user.
 
 ---
 
 ## How The System Works
 
-Explain your design in plain language.
+This recommender uses **content-based filtering** to match songs to user preferences based on musical attributes.
 
 Some prompts to answer:
 
 - What features does each `Song` use in your system
   - For example: genre, mood, energy, tempo
+- Each song uses two types of features:
+  - **Categorical attributes**: 'genre', 'mood'
+  - **Numerical attributes**: 'energy' (0-1), 'valence' (0-1), 'tempo_bpm', 'danceability' (0-1), 'acousticness (0-1)
 - What information does your `UserProfile` store
+- 'favorite_genre': Preferred musical style (e.g, "pop", "lofi", "jazz")
+- 'favorite_mood': Preferred emotional tone (e.g, "happy", "chilli", "intense")
+- 'target_energy': Desired energy level (0.0 = calm, 1.0 = very energetic)
+- 'target_valence': Desired positivity (0.0 = sad/dark, 1.0 = happy/bright)
+- 'target_tempo': Preferred beats per minute (e.g, 75 for slow, 130 for fast)
+- 'target_danceability': How danceable (0-1)
+- 'target_acousticness': Preferrence for acoustic vs. wlwctronic (0-1)
+
 - How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+Each songs receives a score out of a total of 100 points based on how well it maches the user preferences.
+**Categorical Matching (exact match):**
+- Genre match: +25 points
+- Mood match: +20 points
+
+**Numerical Matching (distance-based):**
+- Songs closer to the user's average values score higher using the formula:
+- 'Score = Max Points x (1 - |user_preference - song_value|)'
+
+- Energy similarity: up to 20 points
+- Valence similarity: up to 15 points
+- Tempo similarity: up to 10 points (normalized by dividing BPM difference by 100)
+- Danceability similarity: up to 5 points
+- Acousticness similarity: up to 5 points
 
 You can include a simple diagram or bullet list if helpful.
 
+- How do you choose which songs to recommend
+- Songs are recommended in 4 steps:
+1) Load all songs from 'data/songs.csv'
+2) For each songs, Calculate total score based on user profile.
+3) Rank all songs from highest to lowest score.
+4) Return the top 5 songs as recommendations.
+
+**Potential Biases**
+- **Genre over-prioritization**: A song  with matching genre gets 25 points automatically, which might exclude great mood matches from other genres.
+- **Exact match requirement**: Songs that are "close but not exact" in categorical features get zero points instead of partial credit.
+- **Narrow taste assumption**: The system assumes users have a single, consistent taste profile rather than context-dependent preferences (e.g, workout vs. sleep music)
 ---
 
 ## Getting Started
